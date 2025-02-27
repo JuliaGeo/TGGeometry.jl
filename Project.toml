@@ -6,12 +6,12 @@ version = "0.1.0"
 [deps]
 CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
 GeoInterface = "cf35fbd7-0cd7-5166-be24-54bfbe79505f"
-Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+tg_jll = "d3b19594-2c4a-559a-8374-9f5b4f4149ad"
 
 [compat]
 CEnum = "0.5"
 GeoInterface = "1.4"
-Libdl = "1"
+tg_jll = "0.7"
 julia = "1.6"
 
 [extras]

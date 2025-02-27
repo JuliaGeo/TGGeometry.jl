@@ -1,13 +1,11 @@
 module TGGeometry
 
-# Write your package code here.
-
-using Libdl, CEnum
+using CEnum
 
 import GeoInterface as GI
 import GeoInterface
 
-const libtg = joinpath(@__DIR__, "..", "..", "tg", "libtg.so")
+using tg_jll: libtg
 
 include("libtg.jl")
 include("geointerface.jl")
