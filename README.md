@@ -12,7 +12,8 @@ TGGeometry.jl is a Julia wrapper around the [`tg`](https://github.com/tidwall/tg
 - `within(geom1, geom2)`
 
 from the [DE-9IM](https://en.wikipedia.org/wiki/DE-9IM) model.
-
+<!--
+add this back when GeometryOps releases this
 > [!TIP]
 > `TGGeometry.jl` is also integrated with [GeometryOps.jl](https://github.com/JuliaGeometry/GeometryOps.jl) - 
 > you can use TGGeometry predicates by first importing TGGeometry itself 
@@ -20,6 +21,7 @@ from the [DE-9IM](https://en.wikipedia.org/wiki/DE-9IM) model.
 > in predicates.
 > 
 > `GO.intersects(GO.TG(), geom1, geom2)` is equivalent to `TGGeometry.intersects(geom1, geom2)`.
+-->
 
 It is fully [GeoInterface.jl](https://github.com/JuliaGeo/GeoInterface.jl) compatible, and is able to accept any combination of GeoInterface-compatible geometries as input (from GeoDataFrames, GeoJSON, ArchGDAL, GeometryOps, and many more packages!).
 
