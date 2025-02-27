@@ -1,3 +1,3 @@
 for fname in TG_PREDICATES
-    @eval public $fname
+    eval(Expr(:public, fname))
 end
