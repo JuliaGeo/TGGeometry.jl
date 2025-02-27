@@ -9,10 +9,10 @@ GeoInterface = "cf35fbd7-0cd7-5166-be24-54bfbe79505f"
 Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
 
 [compat]
-CEnum = "0.5.0"
-GeoInterface = "1.4.1"
-Libdl = "1.11.0"
-julia = "1.6.7"
+CEnum = "0.5"
+GeoInterface = "1.4"
+Libdl = "1"
+julia = "1.6"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
