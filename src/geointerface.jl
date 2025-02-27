@@ -70,7 +70,10 @@ mutable struct TGGeom{Trait}
 end
 
 # Prevent double-free issues when copying
-Base.copy(geom::TGGeom{Trait}) where Trait = TGGeom{Trait}(tg_geom_clone(geom.ptr))
+# TODO: maybe we should use tg_geom_clone for Base.copy...
+
+Base.copy(geom::TGGeom{Trait}) where Trait = TGGeom{Trait}(tg_geom_copy(geom.ptr)) # perform a deep copy here
+Base.deepcopy(geom::TGGeom{Trait}) where Trait = TGGeom{Trait}(tg_geom_copy(geom.ptr)) # perform a deep copy here
 
 
 # Pretty printing
