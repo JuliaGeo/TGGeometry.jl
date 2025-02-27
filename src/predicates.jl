@@ -54,3 +54,116 @@ function intersects(trait, geom1::GI.Extents.Extent, ::GI.PointTrait, geom2)
 end
 
 
+# Now we actually have to add docs to each function
+
+const DE9IM_INLINE = "[^de9im]"
+const DE9IM_FOOTNOTE = "[^de9im]: the [Dimensionally Extended 9-Intersection Model](https://en.wikipedia.org/wiki/DE-9IM) that describes the relationship between two planar geometries."
+const ARGS_DOC = """
+# Arguments
+- `geom1`: The first geometry.  May be any GeoInterface-compatible geometry.
+- `geom2`: The second geometry.  May be any GeoInterface-compatible geometry.
+"""
+
+@doc """
+    intersects(geom1, geom2)
+
+Check if `geom1` and `geom2` intersect, as defined by DE-9IM $DE9IM_INLINE.
+
+Specifically, this checks that the intersection of two geometries does not result in an empty set.
+
+$ARGS_DOC
+
+$DE9IM_FOOTNOTE
+"""
+intersects
+
+@doc """
+    equals(geom1, geom2)
+
+Check if `geom1` and `geom2` are spatially equal, as defined by DE-9IM $DE9IM_INLINE.
+
+$ARGS_DOC
+
+$DE9IM_FOOTNOTE 
+"""
+equals
+
+@doc """
+    disjoint(geom1, geom2)
+
+Check if `geom1` and `geom2` are disjoint (completely non-intersecting and separate), as defined by DE-9IM $DE9IM_INLINE.
+
+$ARGS_DOC
+
+$DE9IM_FOOTNOTE
+"""
+disjoint
+
+@doc """
+    contains(geom1, geom2)
+
+Check if `geom1` completely contains `geom2`, as defined by DE-9IM $DE9IM_INLINE.
+
+This means that the boundary and interior of `geom2` lie entirely inside `geom1`, and they cannot intersect the exterior of `geom1`.
+
+$ARGS_DOC
+
+$DE9IM_FOOTNOTE
+"""
+contains
+
+@doc """
+    covers(geom1, geom2)
+
+Check if `geom1` covers `geom2`, as defined by DE-9IM $DE9IM_INLINE.
+
+This means that no points of `geom2` lie outside of `geom1`.
+
+$ARGS_DOC
+
+$DE9IM_FOOTNOTE
+"""
+covers
+
+@doc """
+    coveredby(geom1, geom2)
+
+Check if `geom1` is covered by `geom2`, as defined by DE-9IM $DE9IM_INLINE.
+
+This means that no points of `geom1` lie outside of `geom2`.  
+
+Equivalent to `covers(geom2, geom1)` - argument order reversed.
+
+$ARGS_DOC
+
+$DE9IM_FOOTNOTE
+"""
+coveredby
+
+@doc """
+    touches(geom1, geom2)
+
+Check if `geom1` touches `geom2`, as defined by DE-9IM $DE9IM_INLINE.
+
+This means that the intersection of two geometries has at least one point in common, but does not completely contain the other.
+
+$ARGS_DOC
+
+$DE9IM_FOOTNOTE
+"""
+touches
+
+@doc """
+    within(geom1, geom2)
+
+Check if `geom1` is within `geom2`, as defined by DE-9IM $DE9IM_INLINE.
+
+This means that the boundary and interior of `geom1` lie entirely inside `geom2`, and they cannot intersect the exterior of `geom2`.
+
+This is the opposite of `contains(geom2, geom1)`.
+
+$ARGS_DOC
+
+$DE9IM_FOOTNOTE
+"""
+within
