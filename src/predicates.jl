@@ -11,14 +11,14 @@ const TG_PREDICATES = (
 for jl_funcname in TG_PREDICATES
     tg_funcname = Symbol("tg_geom_$(jl_funcname)")
     # This function is solely for dispatch purposes.
-    @eval function $jl_funcname(geom1, geom2)
+    @eval function $jl_funcname(geom1, geom2)::Bool
         $jl_funcname(GI.trait(geom1), geom1, GI.trait(geom2), geom2)
     end
     # This is where the real fun happens.
     @eval function $jl_funcname(::GI.AbstractGeometryTrait, geom1, ::GI.AbstractGeometryTrait, geom2)
         tg1 = GI.convert(TGGeom, geom1) # this automatically is a no-op if geom1 is a TGGeom
         tg2 = GI.convert(TGGeom, geom2) # this automatically is a no-op if geom2 is a TGGeom
-        return $(tg_funcname)(tg1.ptr, tg2.ptr)
+        return $(tg_funcname)(tg1.ptr, tg2.ptr)::Bool
     end    
     
 end
