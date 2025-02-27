@@ -3,7 +3,15 @@ uuid = "d7e755d2-3c95-4bcf-9b3c-79ab1a78647b"
 authors = ["Anshul Singhvi <anshulsinghvi@gmail.com> and contributors"]
 version = "0.1.0"
 
+[deps]
+CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
+GeoInterface = "cf35fbd7-0cd7-5166-be24-54bfbe79505f"
+Libdl = "8f399da3-3557-5675-b5ff-fb832c97cbdb"
+
 [compat]
+CEnum = "0.5.0"
+GeoInterface = "1.4.1"
+Libdl = "1.11.0"
 julia = "1.6.7"
 
 [extras]
