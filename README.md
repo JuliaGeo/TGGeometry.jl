@@ -1,7 +1,7 @@
 # TGGeometry
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/tidwall/tg/refs/heads/main/docs/assets/logo.png" width="240" alt="TG logo">
+<img src="docs/src/assets/logo.png" width="240" alt="TG logo">
 </p>
 
 TGGeometry.jl is a Julia wrapper around the [`tg`](https://github.com/tidwall/tg) C library for planar geometric predicates.  Specifically, it provides:
