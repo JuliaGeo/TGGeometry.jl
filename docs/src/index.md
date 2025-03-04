@@ -86,17 +86,20 @@ Let's see the difference in speed, between using a `TGGeom` and a GeoJSON polygo
 
 ```@example quickstart
 using Chairmarks, GeoInterface
-gj_bench = @be TGGeometry.contains($germany, $berlin)
+gj_bench = @be TGGeometry.contains($germany, $berlin) seconds=1
 ```
 
 ```@example quickstart
 # Convert to TGGeom
 germany_tg = GeoInterface.convert(TGGeometry, germany)
 
-tg_bench = @be TGGeometry.contains($germany_tg, $berlin)
+tg_bench = @be TGGeometry.contains($germany_tg, $berlin) seconds=1
 ```
 
-The prepared approach is about **340x** faster!
+```@example quickstart
+faster_factor = Statistics.median(gj_bench).time / Statistics.median(tg_bench).time 
+@info "The prepared approach is about $(round(faster_factor, digits=2))x faster!"
+```
 
 ## Predicates
 
