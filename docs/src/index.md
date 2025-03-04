@@ -37,10 +37,11 @@ using TGGeometry
 all_countries = naturalearth("admin_0_countries", 10)
 germany = all_countries.geometry[findfirst(==("Germany"), all_countries.NAME)]
 belgium = all_countries.geometry[findfirst(==("Belgium"), all_countries.NAME)]
-using CairoMakie, GeoInterfaceMakie
-f, a, p = poly(germany; label = "Germany", axis = (; aspect = DataAspect(),)) # hide
-poly!(a, belgium; label = "Belgium") # hide
-leg = axislegend(a) # hide
+using CairoMakie, GeoInterfaceMakie # hide
+CairoMakie.activate!(; type = :svg) # hide
+f, a, p = poly(germany; label = "Germany", color = Makie.wong_colors()[1], axis = (; aspect = DataAspect(),), figure = (; size = (450, 300))) # hide
+poly!(a, belgium; label = "Belgium", color = Makie.wong_colors()[2]) # hide
+leg = axislegend(a; position = :lt) # hide
 hidedecorations!(a) # hide
 f # hide
 ```
@@ -67,7 +68,7 @@ You can use any data loader, like GeoJSON, GeoDataFrames, ArchGDAL, etc.  You ca
 berlin = (13.4050, 52.5200) # berlin (longitude, latitude)
 scatter!(a, [berlin], color = :red, label = "Berlin") # hide
 delete!(leg) # hide
-leg = axislegend(a) # hide
+leg = axislegend(a; position = :lt) # hide
 f # hide`
 ```
 
