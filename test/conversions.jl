@@ -10,7 +10,7 @@ function geoms_equal(g1, g2)
     if GI.ngeom(g1) != GI.ngeom(g2)
         return false
     end
-    all(splat(points_equal), zip(GI.getpoint(g1), GI.getpoint(g2)))
+    return all(points_equal(p1, p2) for (p1, p2) in zip(GI.getpoint(g1), GI.getpoint(g2)))
 end
 
 @testset "Point round-trip" begin
