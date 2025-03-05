@@ -3,13 +3,18 @@ import GeoInterface
 # Basic trait implementations
 GeoInterface.isgeometry(::tg_point) = true
 
-GeoInterface.geomtrait(::tg_point) = PointTrait()
+GeoInterface.geomtrait(::tg_point) = GI.PointTrait()
 
 # Coordinate access
-GeoInterface.ncoord(::tg_point) = 2
-GeoInterface.getcoord(p::tg_point, i) = i == 1 ? p.x : p.y
+GeoInterface.ncoord(::GI.PointTrait, p::tg_point) = 2
+GeoInterface.getcoord(::GI.PointTrait, p::tg_point, i) = i == 1 ? p.x : p.y
 
 GeoInterface.convert(::Type{tg_point}, ::GI.PointTrait, x) = tg_point(GI.x(x), GI.y(x))
+
+
+# Helper to convert coordinates to tuples
+point_to_tuple(p::tg_point) = (p.x, p.y)
+
 
 # Geometry traits
 function _trait_type(geom::Ptr{tg_geom})
@@ -101,12 +106,9 @@ GeoInterface.ismeasured(::GI.AbstractGeometryTrait, geom::TGGeom) = false
 
 GeoInterface.Extents.extent(geom::TGGeom) = convert(GI.Extents.Extent, tg_geom_rect(geom.ptr)) # see bottom of file for conversion
 
-# Helper to convert coordinates to tuples
-point_to_tuple(p::tg_point) = (p.x, p.y)
-
 # Geometry traits
-function GeoInterface.geomtrait(geom::TGGeom)
-    _trait_type(geom.ptr)()
+function GeoInterface.geomtrait(geom::TGGeom{Trait}) where Trait
+    Trait()
 end
 
 # Point implementations
@@ -126,6 +128,12 @@ end
 
 # LineString implementations
 function GeoInterface.getpoint(::GI.LineStringTrait, geom::TGGeom, i)
+    point = tg_geom_point_at(geom.ptr, i-1)  # Convert to 0-based indexing
+    point # return a TG point which is not a pointer, to make life faster.
+end
+
+# LinearRing implementations
+function GeoInterface.getpoint(::GI.LinearRingTrait, geom::TGGeom, i)
     point = tg_geom_point_at(geom.ptr, i-1)  # Convert to 0-based indexing
     point # return a TG point which is not a pointer, to make life faster.
 end
@@ -152,6 +160,13 @@ function GeoInterface.getring(::GI.PolygonTrait, geom::TGGeom, i)
     TGGeom{GeoInterface.LinearRingTrait}(tg_geom_new_linestring(ring))  # Rings are treated as closed linestrings
 end
 
+GeoInterface.ngeom(::GI.PolygonTrait, geom::TGGeom) = 1 + tg_poly_num_holes(tg_geom_poly(geom.ptr))
+function GeoInterface.getgeom(::GI.PolygonTrait, geom::TGGeom, i)
+    poly = tg_geom_poly(geom.ptr)
+    ring = tg_poly_exterior(poly)
+    TGGeom{GeoInterface.LinearRingTrait}(tg_geom_new_linestring(ring))
+end
+
 # MultiPolygon implementations
 GeoInterface.ngeom(::GI.MultiPolygonTrait, geom::TGGeom) = tg_geom_num_polys(geom.ptr)
 function GeoInterface.getgeom(::GI.MultiPolygonTrait, geom::TGGeom, i)
@@ -162,7 +177,11 @@ end
 # GeometryCollection implementations
 GeoInterface.ngeom(::GI.GeometryCollectionTrait, geom::TGGeom) = tg_geom_num_geometries(geom.ptr)
 function GeoInterface.getgeom(::GI.GeometryCollectionTrait, geom::TGGeom, i)
-    TGGeom{GI.GeometryCollectionTrait}(tg_geom_geometry_at(geom.ptr, i-1))  # Convert to 0-based indexing
+    # Here, we have no idea what the type of the geometry is, so we just return a TGGeom.
+    # The constructor will figure out the type.
+
+    # Yes, this is a bit type unstable.  But it's a small union, so I think it's fine.
+    TGGeom(tg_geom_geometry_at(geom.ptr, i-1))  # Convert to 0-based indexing
 end
 
 # Conversion methods
