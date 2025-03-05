@@ -127,30 +127,33 @@ function GeoInterface.getgeom(::GI.MultiPointTrait, geom::TGGeom, i)
 end
 
 # LineString implementations
-function GeoInterface.getpoint(::GI.LineStringTrait, geom::TGGeom, i)
-    point = tg_geom_point_at(geom.ptr, i-1)  # Convert to 0-based indexing
+GeoInterface.ngeom(::GI.LineStringTrait, geom::TGGeom) = tg_line_num_points(tg_geom_line(geom.ptr))
+function GeoInterface.getgeom(::GI.LineStringTrait, geom::TGGeom, i)
+    point = tg_line_point_at(tg_geom_line(geom.ptr), i-1)  # Convert to 0-based indexing
     point # return a TG point which is not a pointer, to make life faster.
 end
 
 # LinearRing implementations
-function GeoInterface.getpoint(::GI.LinearRingTrait, geom::TGGeom, i)
-    point = tg_geom_point_at(geom.ptr, i-1)  # Convert to 0-based indexing
+GeoInterface.ngeom(::GI.LinearRingTrait, geom::TGGeom) = tg_line_num_points(tg_geom_line(geom.ptr))
+function GeoInterface.getgeom(::GI.LinearRingTrait, geom::TGGeom, i)
+    point = tg_line_point_at(tg_geom_line(geom.ptr), i-1)  # Convert to 0-based indexing
     point # return a TG point which is not a pointer, to make life faster.
 end
 
 # MultiLineString implementations
+GeoInterface.ngeom(::GI.MultiLineStringTrait, geom::TGGeom) = tg_geom_num_lines(geom.ptr)
 function GeoInterface.getgeom(::GI.MultiLineStringTrait, geom::TGGeom, i)
     line = tg_geom_line_at(geom.ptr, i-1)  # Convert to 0-based indexing
     TGGeom{GeoInterface.LineStringTrait}(tg_geom_new_linestring(line))
 end
 
 # Polygon implementations
-function GeoInterface.nring(::GI.PolygonTrait, geom::TGGeom)
+function GeoInterface.ngeom(::GI.PolygonTrait, geom::TGGeom)
     poly = tg_geom_poly(geom.ptr)
     1 + tg_poly_num_holes(poly)  # Exterior ring + holes
 end
 
-function GeoInterface.getring(::GI.PolygonTrait, geom::TGGeom, i)
+function GeoInterface.getgeom(::GI.PolygonTrait, geom::TGGeom, i)
     poly = tg_geom_poly(geom.ptr)
     ring = if i == 1
         tg_poly_exterior(poly)
@@ -158,13 +161,6 @@ function GeoInterface.getring(::GI.PolygonTrait, geom::TGGeom, i)
         tg_poly_hole_at(poly, i-2)  # Convert to 0-based indexing for holes
     end
     TGGeom{GeoInterface.LinearRingTrait}(tg_geom_new_linestring(ring))  # Rings are treated as closed linestrings
-end
-
-GeoInterface.ngeom(::GI.PolygonTrait, geom::TGGeom) = 1 + tg_poly_num_holes(tg_geom_poly(geom.ptr))
-function GeoInterface.getgeom(::GI.PolygonTrait, geom::TGGeom, i)
-    poly = tg_geom_poly(geom.ptr)
-    ring = tg_poly_exterior(poly)
-    TGGeom{GeoInterface.LinearRingTrait}(tg_geom_new_linestring(ring))
 end
 
 # MultiPolygon implementations
@@ -226,7 +222,15 @@ end
 # LineString conversion
 function GeoInterface.convert(::Type{TGGeom{GI.LineStringTrait}}, ::GI.LineStringTrait, geom)
     points = [tg_point(GI.x(p), GI.y(p)) for p in GI.getpoint(geom)]
-    return TGGeom{GI.LineStringTrait}(tg_geom_new_linestring(points))
+    line = tg_line_new(points, length(points))
+    return TGGeom{GI.LineStringTrait}(line)
+end
+
+# LinearRing conversion
+function GeoInterface.convert(::Type{TGGeom{GI.LinearRingTrait}}, ::GI.LinearRingTrait, geom)
+    points = [tg_point(GI.x(p), GI.y(p)) for p in GI.getpoint(geom)]
+    line = tg_line_new(points, length(points))
+    return TGGeom{GI.LinearRingTrait}(line)
 end
 
 # MultiLineString conversion
