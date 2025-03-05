@@ -7,7 +7,7 @@ using GeoInterface: Extent
 @testset "TGGeometry.jl" begin
     # Write your tests here.
     @testset "Conversion" begin
-        
+        include("conversions.jl")
     end
     @testset "Predicates work on GI geometry" begin
     end
