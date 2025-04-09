@@ -160,7 +160,7 @@ function GeoInterface.getgeom(::GI.PolygonTrait, geom::TGGeom, i)
     else
         tg_poly_hole_at(poly, i-2)  # Convert to 0-based indexing for holes
     end
-    TGGeom{GeoInterface.LinearRingTrait}(ring)  # Rings are treated as closed linestrings
+    TGGeom{GeoInterface.LinearRingTrait}(tg_geom_clone(ring))  # Rings are treated as closed linestrings
 end
 
 # MultiPolygon implementations
@@ -177,7 +177,7 @@ function GeoInterface.getgeom(::GI.GeometryCollectionTrait, geom::TGGeom, i)
     # The constructor will figure out the type.
 
     # Yes, this is a bit type unstable.  But it's a small union, so I think it's fine.
-    TGGeom(tg_geom_geometry_at(geom.ptr, i-1))  # Convert to 0-based indexing
+    TGGeom(tg_geom_geometry_at(geom.ptr, i-1) |> tg_geom_clone)  # Convert to 0-based indexing
 end
 
 # Conversion methods
@@ -223,14 +223,16 @@ end
 function GeoInterface.convert(::Type{TGGeom{GI.LineStringTrait}}, ::GI.LineStringTrait, geom)
     points = [tg_point(GI.x(p), GI.y(p)) for p in GI.getpoint(geom)]
     line = tg_line_new(points, length(points))
-    return TGGeom{GI.LineStringTrait}(line)
+    # Note: no need to free the line here, since the TGGeom finalizer will do it.
+    TGGeom{GI.LineStringTrait}(line)
 end
 
 # LinearRing conversion
 function GeoInterface.convert(::Type{TGGeom{GI.LinearRingTrait}}, ::GI.LinearRingTrait, geom)
     points = [tg_point(GI.x(p), GI.y(p)) for p in GI.getpoint(geom)]
     ring = tg_ring_new(points, length(points))
-    return TGGeom{GI.LinearRingTrait}(ring)
+    # Note: no need to free the ring here, since the TGGeom finalizer will do it.
+    TGGeom{GI.LinearRingTrait}(ring)
 end
 
 # MultiLineString conversion
@@ -241,7 +243,12 @@ function GeoInterface.convert(::Type{TGGeom{GI.MultiLineStringTrait}}, ::GI.Mult
         points = tg_point[tg_point(GI.x(p), GI.y(p)) for p in GI.getpoint(ls)]
         lines[i] = tg_line_new(points, length(points))
     end
-    TGGeom{GI.MultiLineStringTrait}(tg_geom_new_multilinestring(lines, n))
+    result = TGGeom{GI.MultiLineStringTrait}(tg_geom_new_multilinestring(lines, n))
+    # Note that we only do this when constructing mutable intermediate geometries.
+    for line in lines
+        tg_line_free(line) # decrement the reference count on the line
+    end
+    return result
 end
 
 # Polygon conversion
@@ -257,7 +264,14 @@ function GeoInterface.convert(::Type{TGGeom{GI.PolygonTrait}}, ::GI.PolygonTrait
     end
     
     # Create polygon
-    TGGeom{GI.PolygonTrait}(tg_geom_new_polygon(tg_poly_new(exterior, holes, nholes)))
+    result = TGGeom{GI.PolygonTrait}(tg_geom_new_polygon(tg_poly_new(exterior, holes, nholes)))
+
+    # Note that we only do this when constructing mutable intermediate geometries.
+    tg_poly_free(exterior) # decrement the reference count on the exterior
+    for hole in holes
+        tg_ring_free(hole) # decrement the reference count on the hole
+    end
+    return result
 end
 
 # Helper function for converting rings
@@ -277,16 +291,35 @@ function GeoInterface.convert(::Type{TGGeom{GI.MultiPolygonTrait}}, ::GI.MultiPo
         exterior = _convert_ring(GI.getring(polygon, 1))
         
         # Convert holes
-        nholes = GI.nring(polygon) - 1
-        holes = Vector{Ptr{tg_ring}}(undef, nholes)
-        for j in 1:nholes
-            holes[j] = _convert_ring(GI.getring(polygon, j + 1))
+        nholes = GI.nhole(polygon)
+        holes = if nholes > 0
+            _holes = Vector{Ptr{tg_ring}}(undef, nholes)
+            for j in 1:nholes
+                _holes[j] = _convert_ring(GI.getring(polygon, j + 1))
+            end
+            _holes
+        else
+            C_NULL
         end
         
         polys[i] = tg_poly_new(exterior, holes, nholes)
+
+        # Note that we only do this when constructing mutable intermediate geometries.
+        tg_ring_free(exterior) # decrement the reference count on the exterior  
+        if nholes > 0
+            for hole in holes
+                tg_ring_free(hole) # decrement the reference count on the hole
+            end
+        end
     end
     
-    TGGeom{GI.MultiPolygonTrait}(tg_geom_new_multipolygon(polys, n))
+    result = TGGeom{GI.MultiPolygonTrait}(tg_geom_new_multipolygon(polys, n))
+
+    # Note that we only do this when constructing mutable intermediate geometries.
+    for poly in polys
+        tg_poly_free(poly) # decrement the reference count on the polygon
+    end
+    return result
 end
 
 # GeometryCollection conversion
@@ -298,8 +331,9 @@ function GeoInterface.convert(::Type{TGGeom{GI.GeometryCollectionTrait}}, ::GI.G
         subgeom = GI.getgeom(geom, i)
         # Convert each sub-geometry and store its pointer
         converted = GeoInterface.convert(TGGeom, subgeom)
-        # Clone the geometry to avoid ownership issues
-        geoms[i] = tg_geom_clone(converted.ptr)
+        # No need to clone the geometry to avoid ownership issues
+        # since the new geometrycollection constructor will take ownership of it
+        geoms[i] = converted.ptr
         # The original converted geometry will be freed normally
         # when it goes out of scope, as we're using a clone
     end
