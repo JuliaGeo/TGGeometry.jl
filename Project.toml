@@ -1,7 +1,7 @@
 name = "TGGeometry"
 uuid = "d7e755d2-3c95-4bcf-9b3c-79ab1a78647b"
 authors = ["Anshul Singhvi <anshulsinghvi@gmail.com> and contributors"]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 CEnum = "fa961155-64e5-5f13-b03f-caf6b980ea82"
