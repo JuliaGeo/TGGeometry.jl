@@ -23,7 +23,12 @@ function run_testsets(json_file_path)
         end && continue
 
         geoms = @. GFT.WellKnownText((GFT.Geom(),), String(testset.geoms))
-        @testset let testset_index = i
+        # TODO: this should be a ContextTestSet, BUT
+        # that is not available in 1.6........
+        # since I never expect these tests to fail I am fine with the potential noise.  
+        # but in general - DO NOT do this massive testset nesting,
+        # instead use context to avoid gigantic testset printing.
+        @testset "testset_index = $i" begin 
             for (predname, results) in testset.predicates
                 !haskey(TG_PRED_SYMBOL_TO_FUNCTION, predname) && continue
                 predname in TG_IGNORE_LIST && continue
@@ -31,7 +36,7 @@ function run_testsets(json_file_path)
 
                 expected = first(results) == "T"
 
-                @testset let predicate = predname
+                @testset "predicate = $predname" begin
                     @test predicate_f(geoms[1], geoms[2]) == expected
                 end
             end
