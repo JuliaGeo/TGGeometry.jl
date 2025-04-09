@@ -48,4 +48,12 @@ using GeoInterface: Extent
         rect8 = Extent(X=(2.0, 8.0), Y=(2.0, 8.0))
         @test TGGeometry.intersects(rect7, rect8) == true
     end
+
+    @testset "`tg` tests from the C library" begin
+        # NOTE:
+        # In order to allow JSON3.jl to parse the JSON files they use,
+        # you have to manually convert from JSONC (JSON-with-comments)
+        # to actual JSON.
+        include("tg/tg_testsets.jl")
+    end
 end

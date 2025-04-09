@@ -11,11 +11,15 @@ tg_jll = "d3b19594-2c4a-559a-8374-9f5b4f4149ad"
 [compat]
 CEnum = "0.5"
 GeoInterface = "1.4"
-tg_jll = "0.7"
 julia = "1.6"
+tg_jll = "0.7"
 
 [extras]
+GeoFormatTypes = "68eda718-8dee-11e9-39e7-89f7f65f511f"
+GeoInterface = "cf35fbd7-0cd7-5166-be24-54bfbe79505f"
+JSON3 = "0f8b85d8-7281-11e9-16c2-39a750bddbf1"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+WellKnownGeometry = "0f680547-7be7-4555-8820-bb198eeb646b"
 
 [targets]
-test = ["Test"]
+test = ["Test", "GeoFormatTypes", "GeoInterface", "JSON3", "WellKnownGeometry"]
