@@ -74,11 +74,11 @@ using Chairmarks, GeoInterface
 gj_bench = @be TGGeometry.contains($germany, $berlin)
 ```
 ```
-Benchmark: 2014 samples with 1 evaluation
- min    21.375 μs (72 allocs: 49.891 KiB)
- median 32.791 μs (72 allocs: 49.891 KiB)
- mean   44.772 μs (72 allocs: 49.891 KiB, 0.64% gc time)
- max    2.290 ms (72 allocs: 49.891 KiB, 96.10% gc time)
+Benchmark: 2566 samples with 1 evaluation
+ min    22.333 μs (50 allocs: 49.203 KiB)
+ median 28.792 μs (50 allocs: 49.203 KiB)
+ mean   36.276 μs (50 allocs: 49.203 KiB, 0.40% gc time)
+ max    12.164 ms (50 allocs: 49.203 KiB, 99.44% gc time)
 ```
 ```julia
 # Convert to TGGeom
@@ -88,10 +88,10 @@ tg_bench = @be TGGeometry.contains($germany_tg, $berlin)
 ```
 ```
 Benchmark: 2355 samples with 305 evaluations
- min    78.279 ns (1 allocs: 16 bytes)
- median 94.262 ns (1 allocs: 16 bytes)
- mean   131.635 ns (1 allocs: 16 bytes, 0.04% gc time)
- max    85.267 μs (1 allocs: 16 bytes, 99.75% gc time)
+ min    32.029 ns (1 allocs: 16 bytes)
+ median 42.329 ns (1 allocs: 16 bytes)
+ mean   45.290 ns (1 allocs: 16 bytes, 0.04% gc time)
+ max    3.553 μs (1 allocs: 16 bytes, 97.27% gc time)
 ```
 
-The prepared approach is about **340x** faster!
+The prepared approach is about **700x** faster!
